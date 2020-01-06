@@ -86,15 +86,17 @@ A, art. ഒരു
 Aback, ad. പുറകൊട്ട, പിന്നൊക്കം
 Abaft, ad. പിമ്പുറത്തെക്ക, കപ്പലിൻറ അമരത്തെക്ക
 Abandon, v. a. വിട്ടൊഴിയുന്നു, ത്യജിക്കുന്നു, പരിത്യാഗം ചെയ്യുന്നു; ഉപെക്ഷിക്കുന്നു, കൈവിടുന്നു
-Abandoned, a. വിട്ടൊഴിയപ്പെട്ട,ത്യജിക്കപ്പെട്ട; ഉപെക്ഷിക്കപ്പെട്ട, കൈവിടപ്പെട്ട; മഹാ കെട്ട, ദുഷ്ടതയുള്ള, വഷളായുള്ള, മഹാ ചീത്ത
+#Abandoned, a. വിട്ടൊഴിയപ്പെട്ട,ത്യജിക്കപ്പെട്ട; ഉപെക്ഷിക്കപ്പെട്ട, കൈവിടപ്പെട്ട; മഹാ കെട്ട, ദുഷ്ടതയുള്ള, വഷളായുള്ള, മഹാ ചീത്ത
+Above-board, ad. പ്രത്യക്ഷമായി, മറവുകൂടാതെ, ക്രിത്രിമം കൂടാതെ
 """
 
 
 grammar = Grammar(
     r"""
     expr       = (entry / emptyline )*
-    entry      = headword comma pos ws senses subentry emptyline
-    headword   = ~"[A-Z 0-9]*"i
+    entry      = hash headword comma pos ws senses subentry emptyline
+    hash       = (~"#")*
+    headword   = ~"[A-Z 0-9 -]*"i
     pos        = (ws ~"[a-z]+\.")+
     subentry   = (semicolon ws senses)*
     senses     = (sense comma)* sense
@@ -121,13 +123,18 @@ class DictVisitor(NodeVisitor):
     def visit_entry(self, node, visited_children):
         """ Returns the overall output. """
         output = {}
-        output["lx"] = visited_children[0]
+        if visited_children[0].lstrip().startswith("#"):
+            return
+        output["lx"] = visited_children[1]
         output["tx"] = datetime.date.today().isoformat()
-        output["ps"] = visited_children[2]
-        output["senses"] = visited_children[4]
-        if visited_children[5]:
-            output["se"] = visited_children[5]
+        output["ps"] = visited_children[3]
+        output["senses"] = visited_children[5]
+        if visited_children[6]:
+            output["se"] = visited_children[6]
         return output
+
+    def visit_hash(self, node, visited_children):
+        return node.text
 
     def visit_headword(self, node, visited_children):
         return node.text
