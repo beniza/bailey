@@ -1,3 +1,4 @@
+import sys
 import datetime
 
 from parsimonious.grammar import Grammar, NodeVisitor
@@ -165,6 +166,12 @@ class DictVisitor(NodeVisitor):
         return visited_children or node
 
 def main():
+    global data
+    if len(sys.argv) > 1:
+        filelocation = sys.argv[1]
+        f = open(filelocation, mode="r", encoding="utf-8")
+        data = f.read()
+
     tree = grammar.parse(data)
     dv = DictVisitor()
     output = dv.visit(tree)
