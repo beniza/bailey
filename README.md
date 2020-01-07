@@ -15,7 +15,7 @@ At the moment there are no executables available for using Bailey. We might rele
 Running the above will generate two outputs. 1) a dictionary representation of all the valid entries (entries that matches the expression in the grammar) in the dictionary_plain_text_file 2) every invalid entries in the file will be stored inside a `error.log` file with the corresponding line numbers.
 
 ## Output
-Bailey currently output data in Multi Dictionary Format (MDF) version 4.0. For more info please see the [description](lexical_entry.md) of entries in the MDF.
+Bailey currently output data in Multi Dictionary Format (MDF) version 4.0. For more info please see the [description](docs/lexical_entry.md) of entries in the MDF.
 
 ## Testing
 To test the script, simply run
