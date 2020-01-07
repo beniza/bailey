@@ -129,11 +129,11 @@ class DictVisitor(NodeVisitor):
         if visited_children[0].lstrip().startswith("#"):
             return
         output["lx"] = visited_children[1]
-        output["tx"] = datetime.date.today().isoformat()
         output["ps"] = visited_children[3]
-        output["senses"] = visited_children[5]
+        output["sn"] = visited_children[5]
         if visited_children[6]:
             output["se"] = visited_children[6]
+        output["dt"] = datetime.date.today().isoformat()
         return output
 
     def visit_hash(self, node, visited_children):
@@ -218,14 +218,15 @@ def main():
     parseData(data)
 
     global o 
-    o = open("dict.txt", mode="w", encoding="utf-8")
+    o = open("./data/output/dict.txt", mode="w", encoding="utf-8")
+    o.write("\\_sh v3.0  231  MDF 4.0\n")
     # # o.write(str(output))
     # pickle.dump(output, o)
     printOutput(output)
     o.close()
  
     if(len(log)):
-        errorLog = open("error.log", mode="w", encoding="utf-8")
+        errorLog = open("./data/output/error.log", mode="w", encoding="utf-8")
         errorLog.write(log)
         errorLog.close
 
