@@ -94,17 +94,20 @@ Above-board, ad. പ്രത്യക്ഷമായി, മറവുകൂട�
 grammar = Grammar(
     r"""
     expr       = (entry / emptyline )*
-    entry      = hash headword comma pos ws senses subentry emptyline
+    entry      = hash headword comma pos ws senses subentry period emptyline
+    # entry      = hash headphrase comma pos ws senses subentry period emptyline
     hash       = (~"#")*
+    # headphrase = headword (ws headword)*
     headword   = ~"[A-Z 0-9 -]*"i
-    pos        = (ws ~"[a-z]+\.")+
+    pos        = (ws ~"[a-z]+[\., ]")+
     subentry   = (semicolon ws senses)*
     senses     = (sense comma)* sense
     sense      = (ml ws ml)* ml
     ml         = ~"[\u0d00-\u0d7f]*"
-    semicolon  = ~";"
+    semicolon  = ~"[;:]"
     comma      = ~","
     ws         = ~"\s*"
+    period    = ~"."
     emptyline  = ws+
     """
 )
@@ -172,17 +175,59 @@ class DictVisitor(NodeVisitor):
         """ The generic visit method. """
         return visited_children or node
 
+def parseData(data):
+    tree = grammar.parse(data)
+    dv = DictVisitor()
+    output = dv.visit(tree)
+    return (output)
+
+def printOutput(item):
+    if type(item) == list:
+        for elem in item:
+            printOutput(elem)
+    elif type(item) == dict:
+        for k, v in item.items():
+            if k.strip() == "lx":
+                o.write("\n")
+            o.write("\n\\{}\t".format(k))
+            printOutput(v)
+    elif type(item) == str:
+        o.write(item.strip())
+    else:
+        # pass
+        print("\\warn\tError! {}".format(item))
+
 def main():
     global data
     if len(sys.argv) > 1:
         filelocation = sys.argv[1]
         f = open(filelocation, mode="r", encoding="utf-8")
-        data = f.read()
+        dataset = f.readlines()
+        i = 1
+        log = ""
+        output = []
+        for data in dataset:
+            try:
+                output.append(parseData(data))
+                i += 1
+            except Exception as e:
+                log += ("{}\t{}".format(i, data))
+                # print("Error on line {line_number}\t{missing_data}\t{err}".format(missing_data=data, err=e, line_number=i))
+                i += 1
+                pass
+    parseData(data)
 
-    tree = grammar.parse(data)
-    dv = DictVisitor()
-    output = dv.visit(tree)
-    print(output)
+    global o 
+    o = open("dict.txt", mode="w", encoding="utf-8")
+    # # o.write(str(output))
+    # pickle.dump(output, o)
+    printOutput(output)
+    o.close()
+ 
+    if(len(log)):
+        errorLog = open("error.log", mode="w", encoding="utf-8")
+        errorLog.write(log)
+        errorLog.close
 
 if __name__ == "__main__":
     main()
